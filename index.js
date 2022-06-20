@@ -12,6 +12,8 @@ app.get('/', (_request, response) => {
   response.status(HTTP_OK_STATUS).send();
 });
 
+// Iniciando o projeto
+
 app.listen(PORT, () => {
   console.log('Online');
 });
