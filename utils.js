@@ -1,4 +1,5 @@
 const fs = require('fs/promises');
+const randomToken = require('random-token');
 
 const readContentFile = async (path) => {
   const readedFile = await fs.readFile(path, 'utf8');
@@ -6,4 +7,9 @@ const readContentFile = async (path) => {
   return JSON.parse(readedFile);
 };
 
-module.exports = { readContentFile };
+const tokenGenerator = () => {
+  const token = randomToken(16);
+  return token;
+};
+
+module.exports = { readContentFile, tokenGenerator };
