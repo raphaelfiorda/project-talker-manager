@@ -1,10 +1,20 @@
-const fs = require('fs/promises');
+const fs = require('fs');
 const randomToken = require('random-token');
 
-const readContentFile = async (path) => {
-  const readedFile = await fs.readFile(path, 'utf8');
+const readContentFile = (path) => {
+  const readedFile = fs.readFileSync(path, 'utf8');
 
   return JSON.parse(readedFile);
+};
+
+const writeNewTalker = (path, content) => {
+  try {
+    const talkerFile = readContentFile(path);
+    const updatedFile = talkerFile.concat({ ...content, id: talkerFile.length + 1 });
+    fs.writeFileSync(path, JSON.stringify(updatedFile));
+  } catch (err) {
+    console.log(err.message);
+  }
 };
 
 const tokenGenerator = () => {
@@ -12,4 +22,4 @@ const tokenGenerator = () => {
   return token;
 };
 
-module.exports = { readContentFile, tokenGenerator };
+module.exports = { readContentFile, writeNewTalker, tokenGenerator };

@@ -1,7 +1,10 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const { readContentFile, tokenGenerator } = require('./utils');
+const { readContentFile, writeNewTalker, tokenGenerator } = require('./utils');
 const { validateEmail, validatePassword } = require('./middlewares/loginValidator');
+const { 
+  validateToken, validateName, validateAge, validateTalk,
+} = require('./middlewares/talkerPostValidator');
 
 const app = express();
 app.use(bodyParser.json());
@@ -33,9 +36,16 @@ app.get('/talker/:id', async (req, res) => {
   res.status(200).json(talkerById);
 });
 
+app.post('/talker', validateToken, validateName, validateAge, validateTalk, (req, res) => {
+  writeNewTalker('./talker.json', req.body);
+  const getTalkersList = readContentFile('./talker.json');
+  const newTalker = { ...req.body, id: getTalkersList.length };
+  return res.status(201).json(newTalker);
+});
+
 app.post('/login', validateEmail, validatePassword, (_req, res) => {
   const token = tokenGenerator();
-
+  
   res.status(200).json({ token });
 });
 
