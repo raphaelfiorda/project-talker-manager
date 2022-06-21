@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const { readContentFile, writeNewTalker, editTalker, tokenGenerator } = require('./utils');
+const { readContentFile, writeNewTalker,
+  editTalker, deleteTalker, tokenGenerator } = require('./utils');
 const { validateEmail, validatePassword } = require('./middlewares/loginValidator');
 const { 
   validateToken, validateName, validateAge, validateTalk,
@@ -39,16 +40,29 @@ app.get('/talker/:id', (req, res) => {
 
 app.put('/talker/:id', validateToken, validateName, validateAge, validateTalk, (req, res) => {
   const { id } = req.params;
+
   editTalker(TALKER_JSON, req.body, id);
+
   const talkersList = readContentFile(TALKER_JSON);
   const editedTalker = talkersList[id - 1];
+
   return res.status(200).json(editedTalker);
+});
+
+app.delete('/talker/:id', validateToken, (req, res) => {
+  const { id } = req.params;
+
+  deleteTalker(TALKER_JSON, id);
+
+  res.status(204).end();
 });
 
 app.post('/talker', validateToken, validateName, validateAge, validateTalk, (req, res) => {
   writeNewTalker(TALKER_JSON, req.body);
+
   const talkersList = readContentFile(TALKER_JSON);
   const newTalker = { ...req.body, id: talkersList.length };
+
   return res.status(201).json(newTalker);
 });
 

@@ -22,7 +22,17 @@ const editTalker = (path, content, id) => {
     const talkerFile = readContentFile(path);
     talkerFile[id - 1] = { ...content, id: Number(id) };
     fs.writeFileSync(path, JSON.stringify(talkerFile));
-    console.log(talkerFile);
+  } catch (err) {
+    console.log(err.message);
+  }
+};
+
+const deleteTalker = (path, id) => {
+  try {
+    const talkerFile = readContentFile(path);
+    const updatedFile = talkerFile.filter((talker) => talker.id !== Number(id));
+    console.log(updatedFile);
+    fs.writeFileSync(path, JSON.stringify(updatedFile));
   } catch (err) {
     console.log(err.message);
   }
@@ -33,4 +43,4 @@ const tokenGenerator = () => {
   return token;
 };
 
-module.exports = { readContentFile, writeNewTalker, editTalker, tokenGenerator };
+module.exports = { readContentFile, writeNewTalker, editTalker, deleteTalker, tokenGenerator };
