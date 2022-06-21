@@ -20,18 +20,30 @@ app.get('/', (_request, response) => {
 });
 
 app.get('/talker', async (_req, res) => {
-  const readTalkersJSON = await readContentFile(TALKER_JSON);
+  const talkersList = readContentFile(TALKER_JSON);
 
-  if (!readTalkersJSON) return res.status(200).json({ message: [] });
+  if (!talkersList) return res.status(200).json({ message: [] });
 
-  res.status(200).json(readTalkersJSON);
+  res.status(200).json(talkersList);
+});
+
+app.get('/talker/search', validateToken, (req, res) => {
+  const { q } = req.query;
+  
+  const talkersList = readContentFile(TALKER_JSON); 
+
+  if (!q) return res.status(200).json(talkersList);
+
+  const searchTalkers = talkersList.filter((talker) => talker.name.includes(q));
+
+  res.status(200).json(searchTalkers);
 });
 
 app.get('/talker/:id', (req, res) => {
   const { id } = req.params;
-  const readTalkersJSON = readContentFile(TALKER_JSON);
+  const talkersList = readContentFile(TALKER_JSON);
 
-  const talkerById = readTalkersJSON.find((talker) => talker.id === Number(id));
+  const talkerById = talkersList.find((talker) => talker.id === Number(id));
 
   if (!talkerById) return res.status(404).json({ message: 'Pessoa palestrante não encontrada' });
 
