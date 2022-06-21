@@ -17,9 +17,20 @@ const writeNewTalker = (path, content) => {
   }
 };
 
+const editTalker = (path, content, id) => {
+  try {
+    const talkerFile = readContentFile(path);
+    talkerFile[id - 1] = { ...content, id: Number(id) };
+    fs.writeFileSync(path, JSON.stringify(talkerFile));
+    console.log(talkerFile);
+  } catch (err) {
+    console.log(err.message);
+  }
+};
+
 const tokenGenerator = () => {
   const token = randomToken(16);
   return token;
 };
 
-module.exports = { readContentFile, writeNewTalker, tokenGenerator };
+module.exports = { readContentFile, writeNewTalker, editTalker, tokenGenerator };

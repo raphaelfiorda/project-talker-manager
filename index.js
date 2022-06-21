@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const { readContentFile, writeNewTalker, tokenGenerator } = require('./utils');
+const { readContentFile, writeNewTalker, editTalker, tokenGenerator } = require('./utils');
 const { validateEmail, validatePassword } = require('./middlewares/loginValidator');
 const { 
   validateToken, validateName, validateAge, validateTalk,
@@ -11,6 +11,7 @@ app.use(bodyParser.json());
 
 const HTTP_OK_STATUS = 200;
 const PORT = '3000';
+const TALKER_JSON = './talker.json';
 
 // não remova esse endpoint, e para o avaliador funcionar
 app.get('/', (_request, response) => {
@@ -18,16 +19,16 @@ app.get('/', (_request, response) => {
 });
 
 app.get('/talker', async (_req, res) => {
-  const readTalkersJSON = await readContentFile('./talker.json');
+  const readTalkersJSON = await readContentFile(TALKER_JSON);
 
   if (!readTalkersJSON) return res.status(200).json({ message: [] });
 
   res.status(200).json(readTalkersJSON);
 });
 
-app.get('/talker/:id', async (req, res) => {
+app.get('/talker/:id', (req, res) => {
   const { id } = req.params;
-  const readTalkersJSON = await readContentFile('./talker.json');
+  const readTalkersJSON = readContentFile(TALKER_JSON);
 
   const talkerById = readTalkersJSON.find((talker) => talker.id === Number(id));
 
@@ -36,10 +37,18 @@ app.get('/talker/:id', async (req, res) => {
   res.status(200).json(talkerById);
 });
 
+app.put('/talker/:id', validateToken, validateName, validateAge, validateTalk, (req, res) => {
+  const { id } = req.params;
+  editTalker(TALKER_JSON, req.body, id);
+  const talkersList = readContentFile(TALKER_JSON);
+  const editedTalker = talkersList[id - 1];
+  return res.status(200).json(editedTalker);
+});
+
 app.post('/talker', validateToken, validateName, validateAge, validateTalk, (req, res) => {
-  writeNewTalker('./talker.json', req.body);
-  const getTalkersList = readContentFile('./talker.json');
-  const newTalker = { ...req.body, id: getTalkersList.length };
+  writeNewTalker(TALKER_JSON, req.body);
+  const talkersList = readContentFile(TALKER_JSON);
+  const newTalker = { ...req.body, id: talkersList.length };
   return res.status(201).json(newTalker);
 });
 
